@@ -9,15 +9,40 @@
   <body style="margin: 0; padding: 0; background-color: antiquewhite; text-align: center;">
     <div class="container" style="margin: 1rem auto; background-color: #fff; padding: 3rem; border-radius: 1rem; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);">
         <h1 style="margin-bottom: 2rem;">Previsioni del meteo</h1>
-        <div class="row" id="pot" style="text-align: center;">
-                       
+        <div class="row justify-content-center" id="pot" style="text-align: center; margin-bottom: 2rem;">
+            <div class="col col-3">
+                <h3>Inserisci città</h3>
+            </div>
+            <div class="col col-3" style="margin-top: 0.3rem;">
+                <input id="city" style="border: none; width: 100%;" placeholder="Nome città (inglese)">
+            </div>
+            <div class="col col-3" style="margin-top: 0.3rem;">
+                <button onclick=coords() style="width: 100%;">Cerca</button>
+            </div>
         </div>
-        <div id="loading" class="row" style="font-size: 1.5em; color: #888;">Caricamento...</div>
         <div id="forecast" class="row justify-content-center" style="display: none;">
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
+        async function coords() {
+            const city = document.getElementById('city').value;
+            const url = `https://nominatim.openstreetmap.org/search?city=${city}&format=json&addressdetails=1&limit=1`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.data && data.data.length > 0) {
+                    latitude = parseFloat(data[0].lat);
+                    longitude = parseFloat(data[0].lon);
+                    fetchWeatherData(latitude, longitude)
+                }
+            } catch (error) {
+                document.alert('An error occurred. Please try again.');
+            }
+        }
+
         function getWeatherDescription(code) {
             const weatherMap = {
                 0: 'Sereno',
@@ -52,8 +77,8 @@
             return weatherMap[code] || 'Errore';
         }
 
-        async function fetchWeatherData() {
-            const apiUrl = "https://api.open-meteo.com/v1/forecast?latitude=45.0705&longitude=7.6868&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=14";
+        async function fetchWeatherData(lat, long) {
+            let apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=14`;
             
             try {
                 const response = await fetch(apiUrl);
@@ -70,7 +95,6 @@
         }
 
         function displayWeatherData(dailyData) {
-            document.getElementById('loading').style.display = 'none';
             document.getElementById('forecast').style = 'gap: 1rem;';
 
             const { temperature_2m_max, temperature_2m_min, precipitation_sum, weather_code, time } = dailyData;
@@ -98,8 +122,6 @@
                 `;
             }
         }
-
-        fetchWeatherData();
     </script>
   </body>
 </html>
