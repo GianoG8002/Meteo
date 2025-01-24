@@ -18,40 +18,42 @@ async function coords() {
 
 function getWeatherDescription(code) {
     const weatherMap = {
-        0: 'Sereno',
-        1: 'Prevalentemente sereno',
-        2: 'Parzialmente nuvoloso',
-        3: 'Nuvoloso',
-        45: 'Nebbia',
-        48: 'Nebbia con formazione di brina',
-        51: 'Pioviggine: Intensità leggera',
-        53: 'Pioviggine: Intensità moderata',
-        55: 'Pioviggine: Intensità densa',
-        56: 'Pioviggine gelata: Intensità leggera',
-        57: 'Pioviggine gelata: Intensità densa',
-        61: 'Pioggia: Intensità leggera',
-        63: 'Pioggia: Intensità moderata',
-        65: 'Pioggia: Intensità forte',
-        66: 'Pioggia gelata: Intensità leggera',
-        67: 'Pioggia gelata: Intensità forte',
-        71: 'Neve: Intensità leggera',
-        73: 'Neve: Intensità moderata',
-        75: 'Neve: Intensità forte',
-        77: 'Grani di neve',
-        80: 'Rovesci di pioggia: Intensità leggera',
-        81: 'Rovesci di pioggia: Intensità moderata',
-        82: 'Rovesci di pioggia: Intensità violenta',
-        85: 'Rovesci di neve: Intensità leggera',
-        86: 'Rovesci di neve: Intensità forte',
-        95: 'Temporale: Leggero o moderato',
-        96: 'Temporale con grandine leggera',
-        99: 'Temporale con grandine forte'
+        0: '01d',
+        1: '02d',
+        2: '02d',
+        3: '03d',
+        45: '50d',
+        48: '50d',
+        51: '10d',
+        53: '10d',
+        55: '10d',
+        56: '10d',
+        57: '10d',
+        61: '09d',
+        63: '09d',
+        65: '09d',
+        66: '09d',
+        67: '09d',
+        71: '13d',
+        73: '13d',
+        75: '13d',
+        77: '13d',
+        80: '09d',
+        81: '09d',
+        82: '09d',
+        85: '13d',
+        86: '13d',
+        95: '11d',
+        96: '11d',
+        99: '11d'
     };
-    return weatherMap[code] || 'Errore';
+    icon = weatherMap[code]
+    
+    return `https://openweathermap.org/img/wn/${icon}@2x.png` || 'Errore';
 }
 
 async function fetchWeatherData(lat, long) {
-    let apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=14`;
+    let apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=16`;
     
     try {
         const response = await fetch(apiUrl);
@@ -73,7 +75,7 @@ function displayWeatherData(dailyData) {
     const { temperature_2m_max, temperature_2m_min, precipitation_sum, weather_code, time } = dailyData;
 
     const forecastContainer = document.getElementById('forecast');
-    const days = 10;
+    const days = 16;
 
     forecastContainer.innerHTML = ``;
     
@@ -87,12 +89,16 @@ function displayWeatherData(dailyData) {
         const weather = getWeatherDescription(weather_code[i]);
 
         forecastContainer.innerHTML += `
-            <div class="row" style="background: #eef1f3; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-                <h3 style="margin-top: 0; text-align: center; color: darkred;">${dayName}</h3>
-                <p>Max Temp: <span style="font-weight: bold;">${maxTemp}°C</span></p>
-                <p>Min Temp: <span style="font-weight: bold;">${minTemp}°C</span></p>
-                <p>Precipitazioni: <span style="font-weight: bold;">${precip} mm</span></p>
-                <p>Meteo: <span style="font-weight: bold;"><br>${weather}</span></p>
+            <div class="row justify-content-center" style="background: #eef1f3; padding: 15px; border-radius: 1rem; align-items: center;">
+                <div class="col" style="background-color: #fff; border-radius: 3rem;">
+                    <h3 style="margin-top: 1rem; text-align: center; color: darkred;">${dayName}</h3>
+                    <img src="${weather}" style="filter: brightness(.85);">
+                </div>
+                <div class="col">
+                    <p>Max Temp: <span style="font-weight: bold;">${maxTemp}°C</span></p>
+                    <p>Min Temp: <span style="font-weight: bold;">${minTemp}°C</span></p>
+                    <p>Precipitazioni: <span style="font-weight: bold;">${precip} mm</span></p>
+                </div>
             </div>
             <div class='row' style='height=2rem'>
                 <p></p>
